@@ -20,12 +20,12 @@ const Header = () => {
             Simply browse through our extensive list of trusted doctors,
             <br /> schedule your appointment hassle-free.
           </p>
-          <Link
-            to="/appointment"
-            className="flex items-center gap-2 mt-2 hover:text-secondary transition-all duration-300 font-medium"
+          <a
+            href="#speciality"
+            className="bg-slate-200 rounded-full justify-center text-gray-500 p-4 flex items-center gap-2 mt-2 hover:text-secondary font-medium"
           >
             Book appointment <img src={assets.arrow_icon} alt="Arrow right" />
-          </Link>
+          </a>
         </div>
       </div>
 

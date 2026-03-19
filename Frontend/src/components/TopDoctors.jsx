@@ -43,7 +43,13 @@ const TopDoctors = () => {
         ))}
       </div>
       <div className="text-center mt-12">
-        <button className="bg-blue-50 text-gray-600 px-10 py-3 rounded-full transition-colors">
+        <button
+          onClick={() => {
+            navigate("/doctors");
+            scrollTo(0, 0);
+          }}
+          className="bg-blue-50 text-gray-600 px-10 py-3 rounded-full transition-colors"
+        >
           more
         </button>
       </div>

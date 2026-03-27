@@ -1,5 +1,4 @@
-import React from "react";
-import { assets } from "../assets/assets";
+import React, { useState } from "react";
 
 const Login = () => {
   const [state, setState] = useState("Admin");
@@ -19,7 +18,7 @@ const Login = () => {
             required
           />
         </div>
-        <div>
+        <div className="w-full">
           <p>Password</p>
           <input
             className="border border-[#DADADA] rounded w-full p-2 mt-1"

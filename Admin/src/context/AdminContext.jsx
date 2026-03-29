@@ -13,9 +13,11 @@ const AdminContextProvider = (props) => {
 
   const getAllDoctors = async () => {
     try {
-      const {data} = await axios.post(backendUrl + '/api/admin/all-doctors',{},
-        {headers:aToken}       
-      );      
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/all-doctors",
+        {},
+        { headers: aToken },
+      );
       if (data.success) {
         setDoctors(data.doctors);
         console.log(data.doctors);
@@ -24,15 +26,15 @@ const AdminContextProvider = (props) => {
       }
     } catch (error) {
       toast.error("Something went wrong while fetching doctors");
-    } 
+    }
 
-  const value = { aToken, setAToken, backendUrl, getAllDoctors, doctors };
+    const value = { aToken, setAToken, backendUrl, getAllDoctors, doctors };
 
-  return (
-    <AdminContext.Provider value={value}>
-      {props.children}
-    </AdminContext.Provider>
-  );
+    return (
+      <AdminContext.Provider value={value}>
+        {props.children}
+      </AdminContext.Provider>
+    );
+  };
 };
-
 export default AdminContextProvider;

@@ -1,7 +1,8 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useCallback, useEffect } from "react";
 import axios from "axios";
-export const AdminContext = createContext();
 import { toast } from "react-toastify";
+
+export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
   const [aToken, setAToken] = useState(
@@ -11,12 +12,12 @@ const AdminContextProvider = (props) => {
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const getAllDoctors = async () => {
+  const getAllDoctors = useCallback(async () => {
     try {
       const { data } = await axios.post(
         backendUrl + "/api/admin/all-doctors",
         {},
-        { headers: aToken },
+        { headers: { aToken } },
       );
       if (data.success) {
         setDoctors(data.doctors);
@@ -27,14 +28,21 @@ const AdminContextProvider = (props) => {
     } catch (error) {
       toast.error("Something went wrong while fetching doctors");
     }
+  }, [aToken, backendUrl]);
 
-    const value = { aToken, setAToken, backendUrl, getAllDoctors, doctors };
+  useEffect(() => {
+    if (aToken) {
+      getAllDoctors();
+    }
+  }, [aToken, getAllDoctors]);
 
-    return (
-      <AdminContext.Provider value={value}>
-        {props.children}
-      </AdminContext.Provider>
-    );
-  };
+  const value = { aToken, setAToken, backendUrl, getAllDoctors, doctors };
+
+  return (
+    <AdminContext.Provider value={value}>
+      {props.children}
+    </AdminContext.Provider>
+  );
 };
+
 export default AdminContextProvider;

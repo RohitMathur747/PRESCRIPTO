@@ -4,6 +4,7 @@ import {
   allDoctors,
   loginAdmin,
 } from "../controllers/adminController.js";
+import { changeAvailability } from "../controllers/doctorController.js";
 import upload from "../middleware/multer.js";
 import authAdmin from "../middleware/authAdmin.js";
 
@@ -11,6 +12,7 @@ const adminRouter = express.Router();
 
 adminRouter.post("/add-doctor", authAdmin, upload.single("image"), addDoctors);
 adminRouter.post("/login", loginAdmin);
-adminRouter.get("/all-doctors", authAdmin, allDoctors);
+adminRouter.post("/all-doctors", authAdmin, allDoctors);
+adminRouter.post("/change-availability", authAdmin, changeAvailability);
 
 export default adminRouter;

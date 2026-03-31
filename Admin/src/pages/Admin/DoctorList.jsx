@@ -37,13 +37,21 @@ const DoctorList = () => {
               </p>
               <p className="text-zinc-600 text-sm">{item.speciality}</p>
               <div>
-                <input
-                  className="mt-2 flex items-center gap-1 text-sm"
-                  type="checkbox"
-                  checked={item.available}
-                  onChange={() => changeAvailability(item._id)}
-                />
-                <p className="text-sm">Available</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    id={`available-${item._id}`}
+                    className="w-4 h-4 text-sm rounded"
+                    type="checkbox"
+                    checked={item.available}
+                    onChange={() => changeAvailability(item._id)}
+                  />
+                  <label
+                    htmlFor={`available-${item._id}`}
+                    className="text-sm font-medium cursor-pointer select-none text-neutral-800"
+                  >
+                    Available
+                  </label>
+                </div>
               </div>
             </div>
           </div>

@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { assets } from "../assets/assets_frontend/assets.js";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContent";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
+  const { token, setToken } = useContext(AppContext);
   const [showMenu, setShowMenu] = useState(false);
-  const [token, setToken] = useState(true);
+
+  const logout = () => {
+    setToken(false);
+    localStorage.removeItem("token");
+  };
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
@@ -115,7 +122,7 @@ const Navbar = () => {
                 </p>
                 <p
                   onClick={() => {
-                    setToken(false);
+                    logout();
                   }}
                   className="hover:text-primary cursor-pointer py-1 border-t pt-1 mt-1"
                 >

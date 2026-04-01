@@ -9,14 +9,15 @@ const currencySymbol = "$";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const AppContentProvider = (props) => {
-  const [doctor, setDoctor] = useState([]);
-  const [token, setToken] = useState("");
+  const [doctors, setDoctors] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem("token") || false);
+  const [user, setUser] = useState(null);
 
   const getDoctorsData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/doctor/list");
+      const { data } = await axios.get(`${backendUrl}/api/doctor/list`);
       if (data.success) {
-        setDoctor(data.doctors);
+        setDoctors(data.doctors);
       } else {
         toast.error(data.message);
       }
@@ -25,16 +26,44 @@ const AppContentProvider = (props) => {
     }
   };
 
+  const getUserData = async () => {
+    if (token) {
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/user/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (data.success) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("User fetch error:", error);
+        setUser(null);
+        setToken(false);
+        localStorage.removeItem("token");
+      }
+    } else {
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     getDoctorsData();
   }, []);
 
+  useEffect(() => {
+    getUserData();
+  }, [token]);
+
   const value = {
-    doctors: doctor,
+    doctors,
     currencySymbol,
     backendUrl,
     token,
     setToken,
+    user,
+    setUser,
   };
 
   return (

@@ -69,4 +69,15 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser };
+const getUserProfile = async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { registerUser, loginUser, getUserProfile };

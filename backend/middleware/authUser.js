@@ -1,22 +1,22 @@
 import jwt from "jsonwebtoken";
-import userModel from "../models/userModel.js";
 
+//user authentication middleware
 const authUser = async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    try {
-      token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await userModel.findById(decoded.userId).select("-password");
-      next();
-    } catch (error) {
-      res.json({ success: false, message: "Not authorized, token failed" });
+  try {
+    const { token } = req.headers;
+    if (!token) {
+      return res.json({
+        success: false,
+        message: "Not Authourized Login Again",
+      });
     }
-  } else {
-    res.json({ success: false, message: "Not authorized, no token" });
+    const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.body.userId = token_decode.id;
+    next();
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
 

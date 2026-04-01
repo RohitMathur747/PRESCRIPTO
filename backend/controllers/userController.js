@@ -2,8 +2,8 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
-//api to register user
 
+//api to register user
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -20,7 +20,6 @@ const registerUser = async (req, res) => {
       });
     }
     //validating strong password
-
     if (password.length < 8) {
       return res.json({ success: false, message: "Password must be Strong" });
     }
@@ -37,9 +36,9 @@ const registerUser = async (req, res) => {
     };
     // save user to database
     const newUser = new userModel(userData);
-    const user = await newUser.save();
+    await newUser.save();
     // generate token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
     res.json({ success: true, token });
   } catch (error) {
     console.error(error);
@@ -48,7 +47,6 @@ const registerUser = async (req, res) => {
 };
 
 //api for login user
-
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -80,4 +78,26 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, getUserProfile };
+const updateProfileUser = async (req, res) => {
+  try {
+    const updates = req.body;
+    const userId = req.user._id;
+    const updatedUser = await userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: updates },
+        { new: true, runValidators: true },
+      )
+      .select("-password");
+
+    res.json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { registerUser, loginUser, getUserProfile, updateProfileUser };

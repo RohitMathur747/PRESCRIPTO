@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { doctors as staticDoctors } from "../assets/assets_frontend/assets.js";
 
 export const AppContext = createContext();
 
@@ -13,17 +14,8 @@ const AppContentProvider = (props) => {
   const [token, setToken] = useState(localStorage.getItem("token") || false);
   const [user, setUser] = useState(null);
 
-  const getDoctorsData = async () => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/api/doctor/list`);
-      if (data.success) {
-        setDoctors(data.doctors);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const getDoctorsData = () => {
+    setDoctors(staticDoctors);
   };
 
   const getUserData = async () => {

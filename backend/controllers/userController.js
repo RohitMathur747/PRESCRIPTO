@@ -88,6 +88,12 @@ const updateProfile = async (req, res) => {
   try {
     const { userId, name, phone, address, dob, gender } = req.body;
     const imageFile = req.file;
+    if (!userId) {
+      return res.json({
+        success: false,
+        message: "userId is required",
+      });
+    }
     if (!name || !phone || !address || !dob || !gender) {
       return res.json({
         success: false,

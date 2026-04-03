@@ -12,31 +12,41 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const AppContentProvider = (props) => {
   const [doctors, setDoctors] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("token") || false);
-  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(false);
+
+  // const getDoctorsData = () => {
+  //   try {
+  //     const { data } = axios.get(backendUrl + "/api/doctor/list");
+  //     if (data.success) {
+  //       setDoctors(data.doctors);
+  //     } else {
+  //       toast.error(data.message || "Failed to fetch doctors data");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error(error.message);
+  //   }
+  // };
 
   const getDoctorsData = () => {
     setDoctors(staticDoctors);
   };
 
-  const getUserData = async () => {
-    if (token) {
-      try {
-        const { data } = await axios.get(`${backendUrl}/api/user/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (data.success) {
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("User fetch error:", error);
-        setUser(null);
-        setToken(false);
-        localStorage.removeItem("token");
+  const loadUserProfileData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/user/get-profile", {
+        headers: {
+          token,
+        },
+      });
+      if (data.success) {
+        setUserData(data.userData);
+      } else {
+        toast.error(data.message || "Failed to fetch user data");
       }
-    } else {
-      setUser(null);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
   };
 
@@ -45,7 +55,11 @@ const AppContentProvider = (props) => {
   }, []);
 
   useEffect(() => {
-    getUserData();
+    if (token) {
+      loadUserProfileData();
+    } else {
+      setUserData(false);
+    }
   }, [token]);
 
   const value = {
@@ -54,8 +68,9 @@ const AppContentProvider = (props) => {
     backendUrl,
     token,
     setToken,
-    user,
-    setUser,
+    loadUserProfileData,
+    userData,
+    setUserData,
   };
 
   return (

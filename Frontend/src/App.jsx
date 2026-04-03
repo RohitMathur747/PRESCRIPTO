@@ -1,16 +1,16 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import Home from "../src/pages/Home";
-import Doctors from "../src/pages/Doctors";
-import Login from "../src/pages/Login";
-import About from "../src/pages/About";
-import Contact from "../src/pages/Contact";
-import MyProfile from "../src/pages/MyProfile";
-import MyAppointments from "../src/pages/MyAppointments";
+import Home from "./pages/Home";
+import Doctors from "./pages/Doctors";
+import Login from "./pages/Login";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import MyProfile from "./pages/MyProfile";
+import MyAppointments from "./pages/MyAppointments";
 import Appointment from "./pages/Appointment";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   return (

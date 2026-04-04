@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
+import doctorModel from "../models/doctorModel.js";
+import appointmentModel from "../models/appointmentModel.js";
 
 //api to register user
 const registerUser = async (req, res) => {
@@ -160,6 +162,78 @@ const updateProfileUser = async (req, res) => {
   }
 };
 
+//Api for book appointment
+const bookAppointment = async (req, res) => {
+  try {
+    const { docId, SlotDate, SlotTime } = req.body;
+    const userId = req.body.userId;
+    if (!userId || !docId || !SlotDate || !SlotTime) {
+      return res.json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+    const docData = await doctorModel.findById(docId);
+    if (!docData || !docData.available) {
+      return res.json({
+        success: false,
+        message: "Doctor is not available",
+      });
+    }
+    let slotBooked = docData.slotsBooked || {};
+
+    // Check and update slots
+    if (!slotBooked[SlotDate]) {
+      slotBooked[SlotDate] = [];
+    }
+    if (slotBooked[SlotDate].includes(SlotTime)) {
+      return res.json({
+        success: false,
+        message: "Slot is not available",
+      });
+    }
+    slotBooked[SlotDate].push(SlotTime);
+
+    const userData = await userModel.findById(userId).select("-password");
+    if (!userData) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const appointmentDocData = {
+      ...docData.toObject(),
+      slotsBooked: undefined,
+    };
+
+    const appointmentData = {
+      userId,
+      docId,
+      userData,
+      docData: appointmentDocData,
+      amount: docData.fees || 0,
+      SlotTime,
+      SlotDate,
+      date: Date.now(),
+    };
+
+    const newAppointment = new appointmentModel(appointmentData);
+    await newAppointment.save();
+
+    //save new slots data in doc
+    await doctorModel.findByIdAndUpdate(docId, {
+      slotsBooked,
+    });
+    res.json({
+      success: true,
+      message: "Appointment booked successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -167,4 +241,5 @@ export {
   updateProfileUser,
   getProfile,
   updateProfile,
+  bookAppointment,
 };

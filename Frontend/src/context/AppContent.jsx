@@ -63,6 +63,7 @@ const AppContentProvider = (props) => {
   }, [token]);
 
   const value = {
+    getDoctorsData,
     doctors,
     currencySymbol,
     backendUrl,

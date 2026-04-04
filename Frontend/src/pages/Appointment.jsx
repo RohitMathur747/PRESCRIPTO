@@ -1,19 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContent";
 import { assets } from "../assets/assets_frontend/assets";
 import RelatedDoctors from "../components/RelatedDoctors";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol } = useContext(AppContext);
+  const { doctors, currencySymbol, backendUrl, token, getDoctorsData } =
+    useContext(AppContext);
+  const navigate = useNavigate();
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   const [docInfo, setDocInfo] = useState(null);
   const [docSlots, setDocSlots] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);
   const [slotTime, setSlotTime] = useState("");
 
   const fetchDocInfo = () => {
@@ -69,6 +71,49 @@ const Appointment = () => {
     }
   };
 
+  const bookAppointment = async () => {
+    if (!token) {
+      toast.warn("Login to Book Appointment");
+      return navigate("/login");
+    }
+    try {
+      const date = docSlots[slotIndex][0].datetime;
+      let day = date.getDate();
+      let month = date.getMonth() + 1;
+      let year = date.getFullYear();
+
+      const SlotDate =
+        String(day).padStart(2, "0") +
+        "-" +
+        String(month).padStart(2, "0") +
+        "-" +
+        year;
+      const SlotTime = slotTime;
+      console.log(SlotDate);
+
+      const { data } = await axios.post(
+        backendUrl + "/api/user/book-appointment",
+        {
+          docId,
+          SlotDate,
+          SlotTime,
+        },
+        { headers: { token } },
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getDoctorsData();
+        navigate("/my-appointments");
+      } else {
+        toast.error(data.message || "Failed to book appointment");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
   useEffect(() => {
     fetchDocInfo();
   }, [doctors, docId]);
@@ -76,10 +121,6 @@ const Appointment = () => {
   useEffect(() => {
     getAvailableSlots();
   }, [docInfo]);
-
-  // useEffect(() => {
-  // console.log(docSlots);
-  // }, [docSlots]);
 
   return (
     docInfo && (
@@ -178,19 +219,12 @@ const Appointment = () => {
                 ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                 : "bg-primary text-white hover:bg-primary-dark cursor-pointer"
             }`}
-            onClick={() => {
-              if (slotTime && docInfo) {
-                alert(
-                  `Appointment booked with Dr. ${docInfo.name} at ${slotTime} for $${docInfo.fees}`,
-                );
-              }
-            }}
-            disabled={!slotTime || !docInfo}
+            onClick={bookAppointment}
           >
             Book Appointment Now
           </button>
 
-          {/* Listing realted Doctors */}
+          {/* Listing related Doctors */}
           <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
         </div>
       </>

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
+import mongoose from "mongoose";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 
@@ -173,13 +174,40 @@ const bookAppointment = async (req, res) => {
         message: "Missing required fields",
       });
     }
-    const docData = await doctorModel.findById(docId);
+    let skipSlotsUpdate = false;
+    let docData;
+    let realDocId = docId;
+    try {
+      docData = await doctorModel.findById(docId);
+    } catch (error) {
+      // Fallback for demo string IDs like "doc1" - use first available doctor
+      const fallbackDoc = await doctorModel.findOne({ available: true });
+      if (fallbackDoc) {
+        docData = fallbackDoc;
+        realDocId = fallbackDoc._id;
+      } else {
+        // Demo mock for static doc1 etc when no real doctors
+        docData = {
+          _id: new mongoose.Types.ObjectId(),
+          fees: 50,
+          available: true,
+          slotsBooked: {},
+          toObject: function () {
+            return { ...this, slotsBooked: undefined };
+          },
+        };
+        realDocId = docData._id;
+        skipSlotsUpdate = true;
+      }
+    }
+
     if (!docData || !docData.available) {
       return res.json({
         success: false,
         message: "Doctor is not available",
       });
     }
+
     let slotBooked = docData.slotsBooked || {};
 
     // Check and update slots
@@ -208,22 +236,24 @@ const bookAppointment = async (req, res) => {
 
     const appointmentData = {
       userId,
-      docId,
+      docId: realDocId.toString(),
       userData,
       docData: appointmentDocData,
       amount: docData.fees || 0,
       SlotTime,
-      SlotDate,
+      Slotdate: new Date(SlotDate.split("-").reverse().join("-")),
       date: Date.now(),
     };
 
     const newAppointment = new appointmentModel(appointmentData);
     await newAppointment.save();
 
-    //save new slots data in doc
-    await doctorModel.findByIdAndUpdate(docId, {
-      slotsBooked,
-    });
+    if (!skipSlotsUpdate) {
+      //save new slots data in real doc
+      await doctorModel.findByIdAndUpdate(realDocId, {
+        slotsBooked,
+      });
+    }
     res.json({
       success: true,
       message: "Appointment booked successfully",

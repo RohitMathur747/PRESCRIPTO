@@ -74,6 +74,10 @@ const AppContentProvider = (props) => {
     setUserData,
   };
 
+  useEffect(() => {
+    getDoctorsData();
+  }, []);
+
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
   );

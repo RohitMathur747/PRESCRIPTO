@@ -2,9 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContent";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const MyAppointments = () => {
-  const { doctors, backendUrl, token } = useContext(AppContext);
+  const { getDoctorData, backendUrl, token } = useContext(AppContext);
+
+  const navigate = useNavigate();
 
   const [appointments, setAppointments] = useState([]);
 
@@ -60,8 +63,57 @@ const MyAppointments = () => {
       if (data.success) {
         toast.success(data.message);
         getUserAppointments();
+        getDoctorData();
       } else {
         toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Appointment Payment",
+      description: "Appointment Payment",
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        try {
+          const { data } = await axios.post(
+            backendUrl + "/api/user/verifyRazorpay",
+            response,
+            { headers: token },
+          );
+          if (data.success) {
+            getUserAppointments();
+            navigate("/my-appointments");
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error(error.message);
+        }
+      },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
+  const appointmentRazorPay = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/razorpay",
+        { appointmentId },
+        { headers: token },
+      );
+      if (data.success) {
+        initPay(data.order);
+        //console.log(data.order);
       }
     } catch (error) {
       console.log(error);
@@ -110,8 +162,16 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
-              {!item.cancelled && (
-                <button className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300">
+              {!item.cancelled && item.payment && (
+                <button className="sm:min-w-48 py-2 border rounded text-stone-500 bg-indigo-50">
+                  Paid
+                </button>
+              )}
+              {!item.cancelled && !item.payment && (
+                <button
+                  onClick={() => appointmentRazorPay(item._id)}
+                  className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300"
+                >
                   Pay online
                 </button>
               )}

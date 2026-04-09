@@ -1,8 +1,13 @@
-import React, { useEffect, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { AdminContext } from "../../context/AdminContext";
+import { AppContext } from "../../context/AppContext";
+import { assets } from "../../assets/assets";
 
 const AllAppointments = () => {
-  const { aToken, appointments, getAllAppointments } = useContext(AdminContext);
+  const { aToken, appointments, getAllAppointments, cancelappointment } =
+    useContext(AdminContext);
+  const appContext = useContext(AppContext);
+  const { calculateAge, slotDateFormat, currency } = appContext;
 
   useEffect(() => {
     if (aToken) {
@@ -27,12 +32,41 @@ const AllAppointments = () => {
         {appointments.map((item, index) => (
           <div
             key={index}
-            //className="grid grid-cols-[0.5fr_3fr_1fr_3fr_1fr_1fr_1fr] grid-flow-col py-3 px-6 border-b hover:bg-gray-50 sm:grid-rows-1 grid-rows-2 items-center"
+            className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
           >
-            <p>{index + 1}</p>
-            <div>
-              <img src={item.userData.image} alt="" />
+            <p className="max-sm:hidden">{index + 1}</p>
+            <div className="flex items-center gap-2">
+              <img
+                className="w-8 rounded-full"
+                src={item.userData.image}
+                alt=""
+              />
+              <p>{item.userData.name}</p>
             </div>
+            <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
+            <p>{slotDateFormat(item.Slotdate, item.SlotTime)}</p>
+            <div className="flex items-center gap-2">
+              <img
+                className="w-8 rounded-full"
+                src={item.docData.image}
+                alt=""
+              />
+              <p>{item.docData.name}</p>
+            </div>
+            <p>
+              {currency}
+              {item.amount}
+            </p>
+            {item.cancelled ? (
+              <p className="text-red-400 text-xs font-medium">Cancelled</p>
+            ) : (
+              <img
+                onClick={() => cancelappointment(item._id)}
+                className="w-10 cursor-pointer"
+                src={assets.cancel_icon}
+                alt=""
+              />
+            )}
           </div>
         ))}
       </div>

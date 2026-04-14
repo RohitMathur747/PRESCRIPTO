@@ -84,9 +84,10 @@ const DoctorProfile = () => {
             <p className="text-gray-600 font-medium mt-4">
               Appointment Fee:
               <span className="text-gray-800">
-                {currency}{" "}
+                {currency}
                 {isEdit ? (
                   <input
+                    value={profileData.fees}
                     type="number"
                     onChange={(e) =>
                       setProfileData((prev) => ({
@@ -98,7 +99,6 @@ const DoctorProfile = () => {
                 ) : (
                   profileData.fees
                 )}
-                value={profileData.fees}
               </span>
             </p>
             <div className="flex gap-2 py-2">

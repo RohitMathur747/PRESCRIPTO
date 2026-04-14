@@ -103,15 +103,19 @@ const Dashboard = () => {
                     <td className="px-6 py-3">
                       <div className="flex-shrink-0">
                         {item.cancelled ? (
-                          <p className="text-red-400 text-sm font-medium">
+                          <p className="text-red-400 text-xs font-medium">
                             Cancelled
+                          </p>
+                        ) : item.isCompleted ? (
+                          <p className="text-green-400 text-xs font-medium">
+                            Completed
                           </p>
                         ) : (
                           <img
                             onClick={() => cancelAppointment(item._id)}
-                            className="w-8 h-8 cursor-pointer"
+                            className="w-10 cursor-pointer"
                             src={assets.cancel_icon}
-                            alt="Cancel"
+                            alt=""
                           />
                         )}
                       </div>

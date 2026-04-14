@@ -111,20 +111,18 @@ const Doctors = () => {
                 className="w-full h-52 object-cover bg-blue-50"
               />
               <div className="p-4">
-                <div className="flex items-center gap-2 text-sm mb-1">
-                  {/* <div className="flex text-yellow-400 text-lg">★★★★★</div> */}
-                </div>
-                <div className="flex items-center gap-1 text-green-500 text-xs mb-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Available
+                <div
+                  className={`flex items-center gap-1 ${item.available ? "text-green-500" : "text-gray-500"}text-xs mb-2`}
+                >
+                  <div
+                    className={`w-2 h-2 ${item.available ? "bg-green-500" : "bg-gray-500"}  rounded-full`}
+                  ></div>
+                  {item.available ? "Available" : "Not Available"}
                 </div>
                 <h3 className="text-gray-900 text-lg font-medium">
                   {item.name}
                 </h3>
                 <p className="text-gray-600 text-sm">{item.speciality}</p>
-                {/* <p className="text-sm text-gray-500">
-                {item.degree}, {item.experience}
-              </p> */}
               </div>
             </div>
           ))}
